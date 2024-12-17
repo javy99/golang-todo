@@ -165,6 +165,42 @@ func createTodo(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
+func updateTodo(w http.ResponseWriter, r *http.Request) {
+	id := strings.TrimSpace(chi.URLParam(r, "id"))
+
+	if !bson.IsObjectIdHex(id) {
+		rnd.JSON(w, http.StatusBadRequest, renderer.M{
+			"message": "The id is invalid",
+		})
+		return
+	}
+
+	var t todo
+
+	if err := json.NewDecoder(r.Body).Decode(&t); err != nil {
+		rnd.JSON(w, http.StatusProcessing, err)
+		return
+	}
+
+	if t.Title == "" {
+		rnd.JSON(w, http.StatusBadRequest, renderer.M{
+			"message": "The title is required",
+		})
+		return
+	}
+
+	if err := db.C(collectionName).Update(
+		bson.M{"id": bson.ObjectIdHex(id)},
+		bson.M{"title": t.Title, "completed": t.Completed},
+	); err != nil {
+		rnd.JSON(w, http.StatusProcessing, renderer.M{
+			"message": "Failed to update todo",
+			"err":     err,
+		})
+		return
+	}
+}
+
 func deleteTodo(w http.ResponseWriter, r *http.Request) {
 	id := strings.TrimSpace(chi.URLParam(r, "id"))
 
