@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"strconv"
 	"time"
 
 	"github.com/go-chi/chi"
@@ -36,7 +37,7 @@ type (
 	todo struct {
 		ID        string    `json:"id"`
 		Title     string    `json:"title"`
-		Completed string    `json:"completed`
+		Completed bool      `json:"completed`
 		CreatedAt time.Time `bson:"created_at"`
 	}
 )
